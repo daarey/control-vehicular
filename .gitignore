@@ -1,0 +1,28 @@
+# Configuración local sensible
+config/Database.local.php
+.env
+
+# Base de datos y dumps de respaldo
+*.sql
+*.sqlite
+
+# Registros y logs
+*.log
+logs/
+
+# Archivos del Sistema Operativo
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Entornos de desarrollo y editores
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Almacenamiento privado de archivos
+storage/uploads/*
+!storage/uploads/.gitkeep
+!storage/uploads/**/.gitkeep
+!storage/uploads/.htaccess

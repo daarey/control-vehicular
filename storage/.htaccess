@@ -1,0 +1,12 @@
+# Bloquear acceso directo a archivos en storage/
+# Los archivos solo pueden ser servidos a través del controlador seguro.
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    <IfModule mod_rewrite.c>
+        RewriteEngine On
+        RewriteRule ^ - [F,L]
+    </IfModule>
+    Deny from all
+</IfModule>
