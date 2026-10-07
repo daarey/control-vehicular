@@ -34,7 +34,7 @@ try {
 ?>
 <aside class="app-sidebar">
     <div class="sidebar-header">
-        <img src="assets/img/Logo_D.webp" alt="Logo Durango" class="sidebar-logo">
+        <img src="<?php echo isset($pathToAssets) ? $pathToAssets : 'assets/'; ?>img/Logo_D.webp" alt="Logo Durango" class="sidebar-logo">
         <div class="sidebar-brand">
             Control Vehicular
             <small>SECOTED</small>

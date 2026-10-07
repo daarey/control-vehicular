@@ -15,9 +15,9 @@ class AuthController
 
     public function manejarLogin(): void
     {
-        // Si el usuario ya cuenta con sesión activa, redirigir directo al dashboard
+        // Si el usuario ya cuenta con sesión activa, redirigir según su rol
         if (AuthMiddleware::estaAutenticado()) {
-            header('Location: dashboard.php');
+            $this->redirigirPorRol();
             exit();
         }
 
@@ -51,7 +51,7 @@ class AuthController
             $_SESSION['id_area']        = (int)($usuario['id_area'] ?? 0);
             $_SESSION['correo']         = $usuario['correo'];
 
-            header('Location: dashboard.php');
+            $this->redirigirPorRol();
             exit();
         }
 
@@ -81,6 +81,22 @@ class AuthController
 
         header('Location: index.php?mensaje=sesion_cerrada');
         exit();
+    }
+
+    /**
+     * Redirección inteligente post-autenticación según el rol del usuario.
+     * Encargado Vehicular va directo a Caseta; el resto al dashboard general.
+     */
+    private function redirigirPorRol(): void
+    {
+        $idRol = (int)($_SESSION['id_rol'] ?? 0);
+
+        // ROL 2 = Encargado Vehicular → directo a Control de Caseta
+        if ($idRol === 2) {
+            header('Location: index.php?action=caseta');
+        } else {
+            header('Location: index.php?action=dashboard');
+        }
     }
 
     private function mostrarVista(): void

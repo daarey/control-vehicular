@@ -3,8 +3,12 @@
  * footer.php
  * Cierre de estructura HTML común y scripts.
  */
+if (!isset($pathToAssets)) {
+    $pathToAssets = 'assets/';
+}
 ?>
 </div> <!-- Fin de .app-layout -->
-<script src="assets/js/main.js?v=<?php echo file_exists(__DIR__ . '/../public/assets/js/main.js') ? filemtime(__DIR__ . '/../public/assets/js/main.js') : time(); ?>"></script>
+<script src="<?php echo $pathToAssets; ?>js/main.js?v=<?php echo time(); ?>" defer></script>
 </body>
 </html>
+

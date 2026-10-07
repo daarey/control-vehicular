@@ -1,5 +1,9 @@
 <?php
 $titulo = $tituloPagina ?? 'Panel de Control — Control Vehicular';
+// Fallback defensivo: si $pathToAssets no fue definido (acceso vía index.php router), usar 'assets/'
+if (!isset($pathToAssets)) {
+    $pathToAssets = 'assets/';
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -12,8 +16,9 @@ $titulo = $tituloPagina ?? 'Panel de Control — Control Vehicular';
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/styles.css?v=<?php echo file_exists(__DIR__ . '/../public/assets/css/styles.css') ? filemtime(__DIR__ . '/../public/assets/css/styles.css') : time(); ?>">
-    <link rel="stylesheet" href="assets/css/dashboard.css?v=<?php echo file_exists(__DIR__ . '/../public/assets/css/dashboard.css') ? filemtime(__DIR__ . '/../public/assets/css/dashboard.css') : time(); ?>">
+    <link rel="stylesheet" href="<?php echo $pathToAssets; ?>css/styles.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="<?php echo $pathToAssets; ?>css/dashboard.css?v=<?php echo time(); ?>">
 </head>
 <body>
 <div class="app-layout">
+
