@@ -122,8 +122,7 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
                 </h5>
                 <button type="button" class="modal-close" data-bs-dismiss="modal" data-close-modal aria-label="Cerrar">&times;</button>
             </div>
-            <form action="index.php?action=usuario_crear" method="POST">
-                <?php echo Csrf::renderField(); ?>
+            <form action="index.php?action=usuarios_store" method="POST">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="nombre_completo" class="modal-input-label">Nombre Completo <span>*</span></label>
@@ -189,8 +188,7 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
                 </h5>
                 <button type="button" class="modal-close" data-bs-dismiss="modal" data-close-modal aria-label="Cerrar">&times;</button>
             </div>
-            <form action="index.php?action=usuario_editar" method="POST">
-                <?php echo Csrf::renderField(); ?>
+            <form action="index.php?action=usuarios_editar" method="POST">
                 <input type="hidden" name="id_usuario" id="edit_id_usuario">
                 <div class="modal-body">
                     <div class="mb-3">
@@ -257,27 +255,23 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
                 </h5>
                 <button type="button" class="modal-close" data-bs-dismiss="modal" data-close-modal aria-label="Cerrar">&times;</button>
             </div>
-            <form action="index.php?action=usuario_eliminar" method="POST" id="formEliminarUsuario">
-                <?php echo Csrf::renderField(); ?>
-                <input type="hidden" name="id_usuario" id="delete_id_usuario">
-                <div class="modal-body">
-                    <p class="modal-desc">
-                        ¿Está seguro de que desea dar de baja al siguiente usuario institucional?
-                    </p>
-                    <div class="modal-info-box">
-                        <strong id="delete_nombre_usuario">—</strong>
-                    </div>
-                    <p class="modal-note">
-                        <em>Nota: Se aplicará una baja lógica (estatus = 0). El usuario perderá acceso al sistema pero su historial y bitácora se conservarán íntegros.</em>
-                    </p>
+            <div class="modal-body">
+                <p class="modal-desc">
+                    ¿Está seguro de que desea dar de baja al siguiente usuario institucional?
+                </p>
+                <div class="modal-info-box">
+                    <strong id="delete_nombre_usuario">—</strong>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-modal-cancel" data-bs-dismiss="modal" data-close-modal>Cancelar</button>
-                    <button type="submit" id="btnConfirmarBaja" class="btn-modal-delete">
-                        Confirmar Baja
-                    </button>
-                </div>
-            </form>
+                <p class="modal-note">
+                    <em>Nota: Se aplicará una baja lógica (estatus = 0). El usuario perderá acceso al sistema pero su historial y bitácora se conservarán íntegros.</em>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-modal-cancel" data-bs-dismiss="modal" data-close-modal>Cancelar</button>
+                <a href="#" id="btnConfirmarBaja" class="btn-modal-delete btn-modal-link">
+                    Confirmar Baja
+                </a>
+            </div>
         </div>
     </div>
 </div>
@@ -312,10 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const nombre = this.getAttribute('data-nombre');
 
             document.getElementById('delete_nombre_usuario').textContent = nombre;
-            const inputId = document.getElementById('delete_id_usuario');
-            if (inputId) {
-                inputId.value = id;
-            }
+            btnConfirmarBaja.href = 'index.php?action=usuarios_delete&id=' + encodeURIComponent(id);
 
             if (modalEliminar) {
                 modalEliminar.classList.add('active', 'show');

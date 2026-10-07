@@ -19,10 +19,10 @@ $puedeEditarEliminar = RoleMiddleware::esAdmin();
         <!-- Botones de Filtro por Estado -->
         <div class="mb-3 d-flex justify-content-between">
             <div class="filter-status-group">
-                <a href="index.php?action=vehiculos" class="btn-filter-status <?php echo empty($estado) ? 'active' : ''; ?>">Todos</a>
-                <a href="index.php?action=vehiculos&estado=Disponible" class="btn-filter-status <?php echo ($estado ?? '') === 'Disponible' ? 'active' : ''; ?>">Disponibles</a>
-                <a href="index.php?action=vehiculos&estado=En ruta" class="btn-filter-status <?php echo ($estado ?? '') === 'En ruta' ? 'active' : ''; ?>">En Ruta</a>
-                <a href="index.php?action=vehiculos&estado=En mantenimiento" class="btn-filter-status <?php echo ($estado ?? '') === 'En mantenimiento' ? 'active' : ''; ?>">En Mantenimiento</a>
+                <a href="index.php?controller=vehiculo&action=index" class="btn-filter-status <?php echo empty($estado) ? 'active' : ''; ?>">Todos</a>
+                <a href="index.php?controller=vehiculo&action=index&estado=Disponible" class="btn-filter-status <?php echo ($estado ?? '') === 'Disponible' ? 'active' : ''; ?>">Disponibles</a>
+                <a href="index.php?controller=vehiculo&action=index&estado=En ruta" class="btn-filter-status <?php echo ($estado ?? '') === 'En ruta' ? 'active' : ''; ?>">En Ruta</a>
+                <a href="index.php?controller=vehiculo&action=index&estado=En mantenimiento" class="btn-filter-status <?php echo ($estado ?? '') === 'En mantenimiento' ? 'active' : ''; ?>">En Mantenimiento</a>
             </div>
             
             <?php if ($puedeEditarEliminar): ?>
@@ -44,11 +44,11 @@ $puedeEditarEliminar = RoleMiddleware::esAdmin();
                     <table class="table table-hover modern-table">
                         <thead>
                             <tr>
-                                <th><a href="index.php?action=vehiculos&orden=numero_economico&dir=<?= $nuevoDirParam ?>&estado=<?= $estadoParam ?>" class="text-dark text-decoration-none">No. Ecón. ↕</a></th>
+                                <th><a href="index.php?controller=vehiculo&action=index&orden=numero_economico&dir=<?= $nuevoDirParam ?>&estado=<?= $estadoParam ?>" class="text-dark text-decoration-none">No. Ecón. ↕</a></th>
                                 <th>Placas</th>
-                                <th><a href="index.php?action=vehiculos&orden=marca&dir=<?= $nuevoDirParam ?>&estado=<?= $estadoParam ?>" class="text-dark text-decoration-none">Marca / Modelo ↕</a></th>
-                                <th><a href="index.php?action=vehiculos&orden=modelo_anio&dir=<?= $nuevoDirParam ?>&estado=<?= $estadoParam ?>" class="text-dark text-decoration-none">Año ↕</a></th>
-                                <th><a href="index.php?action=vehiculos&orden=km_actual&dir=<?= $nuevoDirParam ?>&estado=<?= $estadoParam ?>" class="text-dark text-decoration-none">Km Actual ↕</a></th>
+                                <th><a href="index.php?controller=vehiculo&action=index&orden=marca&dir=<?= $nuevoDirParam ?>&estado=<?= $estadoParam ?>" class="text-dark text-decoration-none">Marca / Modelo ↕</a></th>
+                                <th><a href="index.php?controller=vehiculo&action=index&orden=modelo_anio&dir=<?= $nuevoDirParam ?>&estado=<?= $estadoParam ?>" class="text-dark text-decoration-none">Año ↕</a></th>
+                                <th><a href="index.php?controller=vehiculo&action=index&orden=km_actual&dir=<?= $nuevoDirParam ?>&estado=<?= $estadoParam ?>" class="text-dark text-decoration-none">Km Actual ↕</a></th>
                                 <th>Resguardante</th>
                                 <th>Estado Operativo</th>
                                 <?php if ($puedeEditarEliminar): ?>
@@ -139,8 +139,7 @@ $puedeEditarEliminar = RoleMiddleware::esAdmin();
             </h4>
             <button type="button" class="modal-close" data-close-modal title="Cerrar ventana">&times;</button>
         </div>
-        <form action="index.php?action=vehiculo_crear" method="POST">
-            <?php echo Csrf::renderField(); ?>
+        <form action="index.php?controller=vehiculo&action=store" method="POST">
             <div class="modal-body">
                 <div class="form-grid-2">
                     <div>
@@ -213,8 +212,7 @@ $puedeEditarEliminar = RoleMiddleware::esAdmin();
             </h4>
             <button type="button" class="modal-close" data-close-modal title="Cerrar ventana">&times;</button>
         </div>
-        <form action="index.php?action=vehiculo_editar" method="POST" id="formEditarVehiculo">
-            <?php echo Csrf::renderField(); ?>
+        <form action="index.php?action=vehiculos_editar" method="POST" id="formEditarVehiculo">
             <input type="hidden" name="id_vehiculo" id="edit_id_vehiculo">
             <div class="modal-body">
                 <div class="form-grid-2">
@@ -294,8 +292,7 @@ $puedeEditarEliminar = RoleMiddleware::esAdmin();
             </h4>
             <button type="button" class="modal-close" data-close-modal title="Cerrar ventana">&times;</button>
         </div>
-        <form action="index.php?action=vehiculo_eliminar" method="POST" id="formEliminarVehiculo">
-            <?php echo Csrf::renderField(); ?>
+        <form action="index.php?action=vehiculos_eliminar" method="POST" id="formEliminarVehiculo">
             <input type="hidden" name="id_vehiculo" id="delete_id_vehiculo">
             <div class="modal-body">
                 <div class="delete-warning-box">

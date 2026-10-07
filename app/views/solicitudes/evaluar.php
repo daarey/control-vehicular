@@ -650,7 +650,6 @@ $totalDisponibles  = count($vehiculosDisponibles ?? []);
         </div>
 
         <form action="index.php?action=solicitudes_aprobar" method="POST" id="formEvaluarAsignar">
-            <?php echo Csrf::renderField(); ?>
             <input type="hidden" name="id_solicitud" id="eval_id_solicitud">
 
             <div class="modal-body">
@@ -755,7 +754,6 @@ $totalDisponibles  = count($vehiculosDisponibles ?? []);
         </div>
 
         <form action="index.php?action=solicitudes_rechazar" method="POST" id="formRechazarComision">
-            <?php echo Csrf::renderField(); ?>
             <input type="hidden" name="id_solicitud" id="rechazar_id_solicitud">
 
             <div class="modal-body">

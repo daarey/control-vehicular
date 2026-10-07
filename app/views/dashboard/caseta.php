@@ -2,7 +2,7 @@
 /**
  * app/views/dashboard/caseta.php
  * Panel Operativo de Caseta — Control de Salidas y Retornos Vehiculares.
- * Roles: ROL_ENCARGADO_VEHICULAR / ROL_ADMINISTRADOR.
+ * Roles: ROL_CASETA / ROL_ENCARGADO_VEHICULAR / ROL_ADMINISTRADOR.
  * Zero CSS/JS inline: estilos en dashboard.css, lógica en main.js.
  */
 
@@ -349,7 +349,6 @@ $totalMovimientos  = count($movimientos ?? []);
                                                 ); ?>"
                                                 data-conductor="<?php echo htmlspecialchars($mov['conductor_nombre'] ?? 'Sin asignar', ENT_QUOTES, 'UTF-8'); ?>"
                                                 data-km-inicial="<?php echo (int)($mov['km_inicial'] ?? 0); ?>"
-                                                data-destino="<?php echo htmlspecialchars($mov['destino'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                                 title="Registrar retorno y entrada de la unidad a caseta"
                                                 aria-label="Registrar retorno del movimiento #<?php echo (int)($mov['id_movimiento'] ?? 0); ?>">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
@@ -498,8 +497,7 @@ $totalMovimientos  = count($movimientos ?? []);
             </h4>
             <button type="button" class="modal-close" data-close-modal title="Cerrar ventana">&times;</button>
         </div>
-        <form action="index.php?action=movimiento_despachar" method="POST">
-            <?php echo Csrf::renderField(); ?>
+        <form action="index.php?action=movimiento_salida" method="POST">
             <input type="hidden" name="id_solicitud" id="salida_id_solicitud" value="">
             <input type="hidden" name="id_vehiculo"  id="salida_id_vehiculo"  value="">
             <div class="modal-body">
@@ -577,8 +575,7 @@ $totalMovimientos  = count($movimientos ?? []);
             </h4>
             <button type="button" class="modal-close" data-close-modal title="Cerrar ventana">&times;</button>
         </div>
-        <form action="index.php?action=movimiento_retorno" method="POST">
-            <?php echo Csrf::renderField(); ?>
+        <form action="index.php?action=movimiento_entrada" method="POST">
             <input type="hidden" name="id_movimiento" id="retorno_id_movimiento" value="">
             <div class="modal-body">
                 <!-- Resumen del movimiento -->

@@ -105,8 +105,8 @@ class DashboardController
         }
 
         $tituloPagina = 'Control de Caseta — Salidas y Retornos';
-        // 'caseta' activa el link correcto en el sidebar para este rol
-        $paginaActual = 'caseta';
+        // 'movimientos' activa el link correcto en el sidebar para este rol
+        $paginaActual = 'movimientos';
 
         require_once __DIR__ . '/../views/dashboard/caseta.php';
     }

@@ -305,14 +305,4 @@ class UsuarioController
         header('Location: ' . $destino);
         exit();
     }
-
-    public function editar(): void
-    {
-        $this->update();
-    }
-
-    public function eliminar(): void
-    {
-        $this->delete();
-    }
 }

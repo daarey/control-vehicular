@@ -332,13 +332,12 @@ class SolicitudModel
      */
     public function asignarVehiculo(int $idSolicitud, int $idVehiculo, ?int $idJefe = null, ?string $comentarios = null): bool
     {
-        $this->db->beginTransaction();
         try {
-            // Verificar disponibilidad real del vehículo seleccionado con bloqueo pesimista
-            $check = $this->db->prepare("SELECT id_vehiculo FROM vehiculos WHERE id_vehiculo = :id_v AND estado_operativo = 'Disponible' AND estatus = 1 FOR UPDATE");
+            // Verificar disponibilidad real del vehículo seleccionado
+            $check = $this->db->prepare("SELECT id_vehiculo FROM vehiculos WHERE id_vehiculo = :id_v AND estado_operativo = 'Disponible' AND estatus = 1 LIMIT 1");
             $check->execute([':id_v' => $idVehiculo]);
             if (!$check->fetch()) {
-                throw new Exception('El vehículo seleccionado no se encuentra en estatus Disponible o ya fue asignado.');
+                throw new Exception('El vehículo seleccionado no se encuentra en estatus Disponible.');
             }
 
             $sql = "UPDATE solicitudes
@@ -357,21 +356,9 @@ class SolicitudModel
                 ':id_jefe'      => $idJefe,
                 ':comentarios'  => $comentarios,
             ]);
-
-            if ($stmt->rowCount() <= 0) {
-                throw new Exception('No se pudo autorizar la solicitud. Verifique que continúe en estatus Pendiente.');
-            }
-
-            $this->db->commit();
-            return true;
-        } catch (Throwable $e) {
-            if ($this->db->inTransaction()) {
-                $this->db->rollBack();
-            }
-            if ($e instanceof PDOException) {
-                DatabaseErrorHandler::handle($e, 'asignar vehículo y autorizar la solicitud');
-            }
-            throw $e;
+            return $stmt->rowCount() > 0;
+        } catch (PDOException $e) {
+            DatabaseErrorHandler::handle($e, 'asignar vehículo y autorizar la solicitud');
         }
     }
 

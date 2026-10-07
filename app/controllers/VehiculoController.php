@@ -89,7 +89,7 @@ class VehiculoController
                     'tipo' => 'danger',
                     'mensaje' => 'Por favor complete todos los campos obligatorios del vehículo (Número económico, placas, marca, modelo y año).'
                 ];
-                $destino = $_SERVER['HTTP_REFERER'] ?? 'index.php?action=vehiculos';
+                $destino = $_SERVER['HTTP_REFERER'] ?? 'index.php?controller=vehiculo&action=index';
                 header('Location: ' . $destino);
                 exit();
             }
@@ -121,7 +121,7 @@ class VehiculoController
                         'tipo' => 'success',
                         'mensaje' => 'Registro completado exitosamente.'
                     ];
-                    header("Location: index.php?action=vehiculos");
+                    header("Location: index.php?controller=vehiculo&action=index");
                     exit();
                 } else {
                     throw new Exception('Ocurrió un error inesperado al intentar registrar el vehículo.');
@@ -131,13 +131,13 @@ class VehiculoController
                     'tipo' => 'danger',
                     'mensaje' => $e->getMessage()
                 ];
-                $destino = $_SERVER['HTTP_REFERER'] ?? 'index.php?action=vehiculos';
+                $destino = $_SERVER['HTTP_REFERER'] ?? 'index.php?controller=vehiculo&action=index';
                 header('Location: ' . $destino);
                 exit();
             }
         }
 
-        header('Location: index.php?action=vehiculos');
+        header('Location: index.php?controller=vehiculo&action=index');
         exit();
     }
 
@@ -169,7 +169,7 @@ class VehiculoController
                     'tipo' => 'danger',
                     'mensaje' => 'Por favor complete todos los campos obligatorios del vehículo.'
                 ];
-                $destino = $_SERVER['HTTP_REFERER'] ?? 'index.php?action=vehiculos';
+                $destino = $_SERVER['HTTP_REFERER'] ?? 'index.php?controller=vehiculo&action=index';
                 header('Location: ' . $destino);
                 exit();
             }
@@ -225,12 +225,12 @@ class VehiculoController
                 ];
             }
 
-            $destino = $_SERVER['HTTP_REFERER'] ?? 'index.php?action=vehiculos';
+            $destino = $_SERVER['HTTP_REFERER'] ?? 'index.php?controller=vehiculo&action=index';
             header('Location: ' . $destino);
             exit();
         }
 
-        header('Location: index.php?action=vehiculos');
+        header('Location: index.php?controller=vehiculo&action=index');
         exit();
     }
 
@@ -246,7 +246,7 @@ class VehiculoController
                 'tipo' => 'danger',
                 'mensaje' => 'Identificador de vehículo inválido para la eliminación.'
             ];
-            $destino = $_SERVER['HTTP_REFERER'] ?? 'index.php?action=vehiculos';
+            $destino = $_SERVER['HTTP_REFERER'] ?? 'index.php?controller=vehiculo&action=index';
             header('Location: ' . $destino);
             exit();
         }
@@ -289,7 +289,7 @@ class VehiculoController
             ];
         }
 
-        $destino = $_SERVER['HTTP_REFERER'] ?? 'index.php?action=vehiculos';
+        $destino = $_SERVER['HTTP_REFERER'] ?? 'index.php?controller=vehiculo&action=index';
         header('Location: ' . $destino);
         exit();
     }

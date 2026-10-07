@@ -293,7 +293,6 @@ if ($tieneLicencia) {
                                         <td class="dashboard-td-center">
                                             <?php if ($estado === 'Pendiente'): ?>
                                                 <form action="index.php?action=solicitudes_cancelar" method="POST" class="form-action-cancel">
-                                                    <?php echo Csrf::renderField(); ?>
                                                     <input type="hidden" name="id_solicitud" value="<?php echo (int)($sol['id_solicitud'] ?? 0); ?>">
                                                     <button type="submit" class="btn-action btn-action--delete" title="Cancelar Solicitud de Comisión">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
@@ -335,8 +334,7 @@ if ($tieneLicencia) {
             </h4>
             <button type="button" class="modal-close" data-close-modal title="Cerrar ventana">&times;</button>
         </div>
-        <form action="index.php?action=solicitudes_crear" method="POST">
-            <?php echo Csrf::renderField(); ?>
+        <form action="index.php?action=solicitudes_store" method="POST">
             <div class="modal-body">
                 <div class="form-grid-2">
                     <!-- Destino de la comisión -->

@@ -90,7 +90,7 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
                                         </td>
                                         <td>
                                             <?php if (!empty($c['foto_licencia'])): ?>
-                                                <a href="<?php echo htmlspecialchars(ArchivoController::url($c['foto_licencia']), ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" class="kpi-chip kpi-chip--info">
+                                                <a href="<?php echo htmlspecialchars($c['foto_licencia'], ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" class="kpi-chip kpi-chip--info">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                                                     Ver Licencia
                                                 </a>
@@ -148,8 +148,7 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
             </h4>
             <button type="button" class="modal-close" data-close-modal title="Cerrar ventana">&times;</button>
         </div>
-        <form action="index.php?action=conductor_crear" method="POST" enctype="multipart/form-data">
-            <?php echo Csrf::renderField(); ?>
+        <form action="index.php?action=conductores_store" method="POST" enctype="multipart/form-data">
             <div class="modal-body">
                 <div class="form-grid-2">
                     <div class="form-group-full">
@@ -200,8 +199,7 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
             </h4>
             <button type="button" class="modal-close" data-close-modal title="Cerrar ventana">&times;</button>
         </div>
-        <form action="index.php?action=conductor_editar" method="POST" id="formEditarConductor" enctype="multipart/form-data">
-            <?php echo Csrf::renderField(); ?>
+        <form action="index.php?action=conductores_editar" method="POST" id="formEditarConductor" enctype="multipart/form-data">
             <input type="hidden" name="id_usuario" id="edit_id_usuario">
             <input type="hidden" name="foto_licencia_actual" id="edit_foto_licencia_actual">
             <div class="modal-body">
@@ -245,8 +243,7 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
             </h4>
             <button type="button" class="modal-close" data-close-modal title="Cerrar ventana">&times;</button>
         </div>
-        <form action="index.php?action=conductor_eliminar" method="POST" id="formEliminarConductor">
-            <?php echo Csrf::renderField(); ?>
+        <form action="index.php?action=conductores_eliminar" method="POST" id="formEliminarConductor">
             <input type="hidden" name="id_usuario" id="delete_id_usuario">
             <div class="modal-body">
                 <div class="delete-warning-box">

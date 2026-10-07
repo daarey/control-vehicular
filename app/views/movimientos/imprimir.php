@@ -4,10 +4,272 @@
     <meta charset="UTF-8">
     <title><?php echo htmlspecialchars($tituloDocumento ?? 'Bitácora de Movimientos', ENT_QUOTES, 'UTF-8'); ?> — SECOTED</title>
     <style>
-        <?php readfile(__DIR__ . '/../../../public/assets/css/pdf_report.css'); ?>
-        /* Ajustes específicos de columnas para Bitácora de Movimientos */
-        .badge-placas { font-family: monospace; font-size: 7pt; font-weight: bold; color: #0f172a; }
-        .text-eco { color: #64748b; font-size: 6.5pt; }
+        /* ═══════════════════════════════════════════════════════════════
+           CONFIGURACIÓN DE PÁGINA Y TIPOGRAFÍA BASE (DOMPDF NATIVO)
+           ═══════════════════════════════════════════════════════════════ */
+        @page {
+            size: letter landscape;
+            margin: 12mm 15mm 15mm 15mm;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            background-color: #ffffff;
+            color: #0f172a;
+            font-size: 7.5pt;
+            line-height: 1.3;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           ENCABEZADO INSTITUCIONAL COMPACTO (ALTURA ≤ 2 CM)
+           ═══════════════════════════════════════════════════════════════ */
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-bottom: 2px solid #0f172a;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+        }
+
+        .header-left {
+            text-align: left;
+            vertical-align: top;
+            width: 62%;
+            padding-bottom: 4px;
+        }
+
+        .header-gov {
+            font-size: 9.5pt;
+            font-weight: bold;
+            color: #0f172a;
+            letter-spacing: 0.2px;
+            text-transform: uppercase;
+        }
+
+        .header-secretaria {
+            font-size: 8pt;
+            font-weight: bold;
+            color: #334155;
+            margin-top: 1px;
+            text-transform: uppercase;
+        }
+
+        .header-modulo {
+            font-size: 7.5pt;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .header-right {
+            text-align: right;
+            vertical-align: top;
+            width: 38%;
+            padding-bottom: 4px;
+        }
+
+        .meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 7pt;
+        }
+
+        .meta-table td {
+            padding: 1px 2px;
+            vertical-align: top;
+        }
+
+        .meta-label {
+            color: #64748b;
+            text-align: right;
+            font-weight: normal;
+            width: 48%;
+        }
+
+        .meta-value {
+            color: #0f172a;
+            text-align: left;
+            font-weight: bold;
+            padding-left: 5px;
+            width: 52%;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           BARRA DE RESUMEN COMPACTA (KPIS)
+           ═══════════════════════════════════════════════════════════════ */
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            margin-bottom: 6px;
+        }
+
+        .stats-table td {
+            padding: 4px 6px;
+            font-size: 7pt;
+            text-align: center;
+            border-right: 1px solid #cbd5e1;
+        }
+
+        .stats-table td:last-child {
+            border-right: none;
+        }
+
+        .stat-label {
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 6pt;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 1px;
+        }
+
+        .stat-val {
+            font-size: 8.5pt;
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        .stat-val.active {
+            color: #b45309;
+        }
+
+        .stat-val.closed {
+            color: #15803d;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           TABLA DE DATOS DE LA BITÁCORA
+           ═══════════════════════════════════════════════════════════════ */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            font-size: 7pt;
+        }
+
+        .data-table thead tr {
+            background-color: #0f172a;
+            color: #ffffff;
+        }
+
+        .data-table th {
+            padding: 4px 3px;
+            font-size: 6.8pt;
+            font-weight: bold;
+            border: 1px solid #0f172a;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+            vertical-align: middle;
+        }
+
+        .data-table th.text-center,
+        .data-table td.text-center {
+            text-align: center;
+        }
+
+        .data-table tbody td {
+            padding: 3px 4px;
+            border: 1px solid #cbd5e1;
+            vertical-align: top;
+            line-height: 1.25;
+            word-wrap: break-word;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .data-table tbody tr {
+            page-break-inside: avoid;
+        }
+
+        /* ─── Clases de Utilidad y Badges ────────────────────────── */
+        .text-eco {
+            color: #64748b;
+            font-size: 6.5pt;
+        }
+
+        .badge-placas {
+            font-family: monospace;
+            font-size: 7pt;
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        .badge-status {
+            display: inline-block;
+            padding: 1px 4px;
+            font-size: 6.2pt;
+            font-weight: bold;
+            border-radius: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+        }
+
+        .badge-status-en-ruta {
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+        }
+
+        .badge-status-cerrado {
+            background-color: #dcfce7;
+            border: 1px solid #22c55e;
+            color: #166534;
+        }
+
+        .itinerario-box {
+            margin-top: 3px;
+            padding: 2px 4px;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 2px;
+            font-size: 6.2pt;
+            color: #334155;
+            line-height: 1.2;
+        }
+
+        .itinerario-title {
+            font-weight: bold;
+            color: #0369a1;
+            display: block;
+            margin-bottom: 1px;
+            text-transform: uppercase;
+            font-size: 5.8pt;
+        }
+
+        .empty-cell {
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           PIE DE PÁGINA INSTITUCIONAL
+           ═══════════════════════════════════════════════════════════════ */
+        .footer {
+            position: fixed;
+            bottom: -11mm;
+            left: 0;
+            right: 0;
+            height: 6mm;
+            border-top: 1px solid #cbd5e1;
+            padding-top: 2px;
+        }
+
+        .footer-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 6.2pt;
+            color: #64748b;
+        }
     </style>
 </head>
 <body>

@@ -47,7 +47,7 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
                     </h3>
                     <span class="dashboard-table-desc">
                         Bitácora histórica de salidas y retornos. Para despachar o registrar retorno, use el
-                        <a href="index.php?action=caseta" class="link-inline">Panel Operativo de Caseta</a>.
+                        <a href="index.php?action=movimientos" class="link-inline">Panel Operativo de Caseta</a>.
                     </span>
                 </div>
                 <div class="card-header-actions">

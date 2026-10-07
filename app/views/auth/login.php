@@ -85,7 +85,6 @@
                 <?php endif; ?>
 
                 <form action="index.php" method="POST" novalidate>
-                    <?php echo class_exists('Csrf') ? Csrf::renderField() : (class_exists('CsrfMiddleware') ? CsrfMiddleware::renderField() : ''); ?>
 
                     <div class="form-group">
                         <label for="correo">Correo Electrónico</label>

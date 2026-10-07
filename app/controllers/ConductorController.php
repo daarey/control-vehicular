@@ -259,7 +259,7 @@ class ConductorController
                 return null;
             }
 
-            $carpetaDestino = __DIR__ . '/../../storage/uploads/licencias';
+            $carpetaDestino = __DIR__ . '/../../public/uploads/licencias';
             if (!is_dir($carpetaDestino)) {
                 mkdir($carpetaDestino, 0755, true);
             }
@@ -268,7 +268,7 @@ class ConductorController
             $rutaFinal = $carpetaDestino . '/' . $nombreArchivo;
 
             if (move_uploaded_file($archivoTmp, $rutaFinal)) {
-                return 'storage:licencias/' . $nombreArchivo;
+                return 'uploads/licencias/' . $nombreArchivo;
             }
         }
 

@@ -16,6 +16,7 @@ class RoleMiddleware
 {
     public const ROL_ADMINISTRADOR        = 1;
     public const ROL_ENCARGADO_VEHICULAR  = 2;
+    public const ROL_CASETA               = 2;
     public const ROL_SOLICITANTE          = 3;
     public const ROL_JEFE_AREA            = 4;
 

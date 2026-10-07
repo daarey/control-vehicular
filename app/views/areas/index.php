@@ -90,8 +90,7 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
             </h4>
             <button type="button" class="modal-close" data-close-modal title="Cerrar ventana">&times;</button>
         </div>
-        <form action="index.php?action=area_crear" method="POST">
-            <?php echo Csrf::renderField(); ?>
+        <form action="index.php?action=areas_store" method="POST">
             <div class="modal-body">
                 <div class="mb-16">
                     <label for="nombre_area" class="modal-input-label">Nombre del Área / Dirección <span>*</span></label>
@@ -119,8 +118,7 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
             </h4>
             <button type="button" class="modal-close" data-close-modal title="Cerrar ventana">&times;</button>
         </div>
-        <form action="index.php?action=area_editar" method="POST" id="formEditarArea">
-            <?php echo Csrf::renderField(); ?>
+        <form action="index.php?action=areas_editar" method="POST" id="formEditarArea">
             <input type="hidden" name="id_area" id="edit_id_area">
             <div class="modal-body">
                 <div class="mb-16">
@@ -149,8 +147,7 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
             </h4>
             <button type="button" class="modal-close" data-close-modal title="Cerrar ventana">&times;</button>
         </div>
-        <form action="index.php?action=area_eliminar" method="POST" id="formEliminarArea">
-            <?php echo Csrf::renderField(); ?>
+        <form action="index.php?action=areas_eliminar" method="POST" id="formEliminarArea">
             <input type="hidden" name="id_area" id="delete_id_area">
             <div class="modal-body">
                 <div class="delete-warning-box">

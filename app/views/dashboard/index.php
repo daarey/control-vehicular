@@ -194,7 +194,7 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
                     </h3>
                     <span class="dashboard-table-desc">Unidades actualmente en ruta y registros de la jornada</span>
                 </div>
-                <a href="index.php?action=caseta" class="btn btn-dark btn-sm dashboard-btn-link">
+                <a href="index.php?action=movimientos" class="btn btn-dark btn-sm dashboard-btn-link">
                     Ver Bitácora Completa &rarr;
                 </a>
             </div>

@@ -201,43 +201,13 @@ class ReporteController
             }
 
             $tituloDocumento = 'Bitácora Oficial de Auditoría y Trazabilidad del Sistema';
-
-            // 1. Procesamiento de Plantilla: captura de salida HTML en búfer de memoria
-            ob_start();
-            require __DIR__ . '/../views/reportes/imprimir.php';
-            $html = ob_get_clean();
-
-            // 2. Compilación nativa con Dompdf (orientación horizontal / landscape)
-            require_once __DIR__ . '/../../vendor/autoload.php';
-
-            $opciones = new \Dompdf\Options();
-            $opciones->set('isHtml5ParserEnabled', true);
-            $opciones->set('isRemoteEnabled', true);
-            $opciones->set('defaultFont', 'Helvetica');
-
-            $dompdf = new \Dompdf\Dompdf($opciones);
-            $dompdf->loadHtml($html, 'UTF-8');
-            $dompdf->setPaper('letter', 'landscape');
-            $dompdf->render();
-
-            // 3. Cabeceras HTTP de Salida: limpiar búferes activos y enviar stream binario
-            while (ob_get_level() > 0) {
-                ob_end_clean();
-            }
-
-            header('Content-Type: application/pdf');
-            header('Content-Disposition: inline; filename="Reporte_SECOTED.pdf"');
-            header('Cache-Control: private, max-age=0, must-revalidate, no-store, no-cache');
-            header('Pragma: no-cache');
-            header('Expires: 0');
-
-            echo $dompdf->output();
+            require_once __DIR__ . '/../views/reportes/imprimir.php';
             exit();
         } catch (Throwable $e) {
             error_log('Error en exportarPdf auditoria: ' . $e->getMessage());
             $_SESSION['alerta'] = [
                 'tipo' => 'danger',
-                'mensaje' => 'Ocurrió un error al generar el documento PDF.'
+                'mensaje' => 'Ocurrió un error al generar la vista de impresión del reporte.'
             ];
             header('Location: index.php?action=reportes');
             exit();

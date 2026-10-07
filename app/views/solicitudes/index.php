@@ -134,8 +134,7 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
             </h4>
             <button type="button" class="modal-close" data-close-modal title="Cerrar ventana">&times;</button>
         </div>
-        <form action="index.php?action=solicitudes_crear" method="POST">
-            <?php echo Csrf::renderField(); ?>
+        <form action="index.php?action=solicitudes_store" method="POST">
             <div class="modal-body">
                 <div class="form-grid-2">
                     <!-- Destino de la comisión -->
@@ -236,7 +235,6 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
             <button type="button" class="modal-close" data-close-modal title="Cerrar ventana">&times;</button>
         </div>
         <form id="formAccionSolicitud" method="POST" action="">
-            <?php echo Csrf::renderField(); ?>
             <input type="hidden" name="id_solicitud" id="accion_id_solicitud">
             <div class="modal-body">
                 <p class="modal-desc-tight">

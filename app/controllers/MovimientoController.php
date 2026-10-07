@@ -21,7 +21,8 @@ class MovimientoController
         AuthMiddleware::verificarSesion();
         RoleMiddleware::requerirRol([
             RoleMiddleware::ROL_ADMINISTRADOR,
-            RoleMiddleware::ROL_ENCARGADO_VEHICULAR
+            RoleMiddleware::ROL_ENCARGADO_VEHICULAR,
+            RoleMiddleware::ROL_CASETA
         ]);
 
         $solicitudesAutorizadas = [];
@@ -59,7 +60,8 @@ class MovimientoController
         AuthMiddleware::verificarSesion();
         RoleMiddleware::requerirRol([
             RoleMiddleware::ROL_ADMINISTRADOR,
-            RoleMiddleware::ROL_ENCARGADO_VEHICULAR
+            RoleMiddleware::ROL_ENCARGADO_VEHICULAR,
+            RoleMiddleware::ROL_CASETA
         ]);
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -72,7 +74,7 @@ class MovimientoController
             $kmInicial      = (int)($_POST['km_inicial'] ?? 0);
             $observaciones  = trim($_POST['observaciones'] ?? '');
 
-            $urlDestino = $_SERVER['HTTP_REFERER'] ?? 'index.php?action=caseta';
+            $urlDestino = $_SERVER['HTTP_REFERER'] ?? 'index.php?action=movimientos';
 
             try {
                 $db = Database::getConnection();
@@ -163,7 +165,7 @@ class MovimientoController
             }
         }
 
-        header('Location: index.php?action=caseta');
+        header('Location: index.php?action=movimientos');
         exit();
     }
 
@@ -176,7 +178,8 @@ class MovimientoController
         AuthMiddleware::verificarSesion();
         RoleMiddleware::requerirRol([
             RoleMiddleware::ROL_ADMINISTRADOR,
-            RoleMiddleware::ROL_ENCARGADO_VEHICULAR
+            RoleMiddleware::ROL_ENCARGADO_VEHICULAR,
+            RoleMiddleware::ROL_CASETA
         ]);
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -184,7 +187,7 @@ class MovimientoController
             $kmFinal       = (int)($_POST['km_final'] ?? 0);
             $observaciones = trim($_POST['observaciones'] ?? '');
 
-            $urlDestino = $_SERVER['HTTP_REFERER'] ?? 'index.php?action=caseta';
+            $urlDestino = $_SERVER['HTTP_REFERER'] ?? 'index.php?action=movimientos';
 
             if ($idMovimiento <= 0 || $kmFinal <= 0) {
                 $_SESSION['alerta'] = [
@@ -252,7 +255,7 @@ class MovimientoController
             }
         }
 
-        header('Location: index.php?action=caseta');
+        header('Location: index.php?action=movimientos');
         exit();
     }
 
@@ -276,22 +279,13 @@ class MovimientoController
         $this->entrada();
     }
 
-    public function despachar(): void
-    {
-        $this->salida();
-    }
-
-    public function retorno(): void
-    {
-        $this->entrada();
-    }
-
     public function exportarExcel(): void
     {
         AuthMiddleware::verificarSesion();
         RoleMiddleware::requerirRol([
             RoleMiddleware::ROL_ADMINISTRADOR,
-            RoleMiddleware::ROL_ENCARGADO_VEHICULAR
+            RoleMiddleware::ROL_ENCARGADO_VEHICULAR,
+            RoleMiddleware::ROL_CASETA
         ]);
 
         try {
@@ -466,7 +460,7 @@ class MovimientoController
                 'tipo' => 'danger',
                 'mensaje' => 'Ocurrió un error al exportar la bitácora de movimientos.'
             ];
-            header('Location: index.php?action=caseta');
+            header('Location: index.php?action=movimientos');
             exit();
         }
     }
@@ -476,7 +470,8 @@ class MovimientoController
         AuthMiddleware::verificarSesion();
         RoleMiddleware::requerirRol([
             RoleMiddleware::ROL_ADMINISTRADOR,
-            RoleMiddleware::ROL_ENCARGADO_VEHICULAR
+            RoleMiddleware::ROL_ENCARGADO_VEHICULAR,
+            RoleMiddleware::ROL_CASETA
         ]);
 
         try {
@@ -553,7 +548,7 @@ class MovimientoController
                 'tipo' => 'danger',
                 'mensaje' => 'Ocurrió un error al generar el documento PDF.'
             ];
-            header('Location: index.php?action=caseta');
+            header('Location: index.php?action=movimientos');
             exit();
         }
     }

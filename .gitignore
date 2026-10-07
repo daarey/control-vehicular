@@ -20,9 +20,3 @@ Desktop.ini
 .vscode/
 *.sublime-project
 *.sublime-workspace
-
-# Almacenamiento privado de archivos
-storage/uploads/*
-!storage/uploads/.gitkeep
-!storage/uploads/**/.gitkeep
-!storage/uploads/.htaccess
