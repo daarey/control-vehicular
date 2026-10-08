@@ -35,11 +35,27 @@ class VehiculoController
         $orden = $_GET['orden'] ?? 'numero_economico';
         $dir = $_GET['dir'] ?? 'DESC';
         $estado = $_GET['estado'] ?? null;
+        $busqueda = trim($_GET['busqueda'] ?? $_GET['q'] ?? '');
+        $pagina = max(1, (int)($_GET['pagina'] ?? $_GET['page'] ?? 1));
+        $porPagina = 10;
+        $offset = ($pagina - 1) * $porPagina;
 
         // Invertir dirección para el próximo clic en la tabla
         $nuevoDir = ($dir === 'ASC') ? 'DESC' : 'ASC'; 
 
-        $vehiculos = $this->modeloVehiculo->obtenerTodos($orden, $dir, $estado);
+        $totalRegistros = $this->modeloVehiculo->contarTotal($busqueda, $estado);
+        $totalPaginas = (int)ceil($totalRegistros / $porPagina);
+        if ($totalPaginas < 1) {
+            $totalPaginas = 1;
+        }
+
+        if ($pagina > $totalPaginas && $totalRegistros > 0) {
+            $pagina = $totalPaginas;
+            $offset = ($pagina - 1) * $porPagina;
+        }
+
+        $vehiculos = $this->modeloVehiculo->obtenerPaginados($porPagina, $offset, $busqueda, $estado, $orden, $dir);
+
 
         // Cargar catálogo de usuarios para los formularios
         $usuarios = [];

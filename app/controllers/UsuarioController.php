@@ -22,21 +22,40 @@ class UsuarioController
         AuthMiddleware::verificarSesion();
         RoleMiddleware::requerirRol(RoleMiddleware::ROL_ADMINISTRADOR);
 
-        $usuarios = [];
-        $roles    = [];
-        $areas    = [];
+        $busqueda  = trim($_GET['busqueda'] ?? $_GET['q'] ?? '');
+        $pagina    = max(1, (int)($_GET['pagina'] ?? $_GET['page'] ?? 1));
+        $porPagina = 10;
+        $offset    = ($pagina - 1) * $porPagina;
+
+        $usuarios       = [];
+        $roles          = [];
+        $areas          = [];
+        $totalRegistros = 0;
+        $totalPaginas   = 1;
 
         try {
             $db           = Database::getConnection();
             $usuarioModel = new UsuarioModel($db);
             $areaModel    = new AreaModel($db);
 
-            $usuarios = $usuarioModel->obtenerTodos();
+            $totalRegistros = $usuarioModel->contarTotal($busqueda);
+            $totalPaginas   = (int)ceil($totalRegistros / $porPagina);
+            if ($totalPaginas < 1) {
+                $totalPaginas = 1;
+            }
+
+            if ($pagina > $totalPaginas && $totalRegistros > 0) {
+                $pagina = $totalPaginas;
+                $offset = ($pagina - 1) * $porPagina;
+            }
+
+            $usuarios = $usuarioModel->obtenerPaginados($porPagina, $offset, $busqueda);
             $roles    = $usuarioModel->obtenerRoles();
             $areas    = $areaModel->obtenerTodas();
         } catch (Throwable $e) {
             error_log('Error en UsuarioController::index(): ' . $e->getMessage());
         }
+
 
         // Manejo de mensajes vía GET para retrocompatibilidad
         $mensaje = $_GET['mensaje'] ?? null;

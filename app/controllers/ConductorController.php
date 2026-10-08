@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../config/Database.php';
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../middleware/RoleMiddleware.php';
 require_once __DIR__ . '/../models/UsuarioModel.php';
+require_once __DIR__ . '/../models/ConductorModel.php';
 require_once __DIR__ . '/../models/AreaModel.php';
 require_once __DIR__ . '/../models/BitacoraModel.php';
 
@@ -19,16 +20,35 @@ class ConductorController
         AuthMiddleware::verificarSesion();
         RoleMiddleware::requerirRol(RoleMiddleware::ROL_ADMINISTRADOR);
 
-        $conductores = [];
+        $busqueda  = trim($_GET['busqueda'] ?? $_GET['q'] ?? '');
+        $pagina    = max(1, (int)($_GET['pagina'] ?? $_GET['page'] ?? 1));
+        $porPagina = 10;
+        $offset    = ($pagina - 1) * $porPagina;
+
+        $conductores         = [];
         $usuariosDisponibles = [];
-        $areas = [];
+        $areas               = [];
+        $totalRegistros      = 0;
+        $totalPaginas        = 1;
 
         try {
-            $db = Database::getConnection();
-            $usuarioModel = new UsuarioModel($db);
-            $areaModel    = new AreaModel($db);
+            $db             = Database::getConnection();
+            $conductorModel = new ConductorModel($db);
+            $usuarioModel   = new UsuarioModel($db);
+            $areaModel      = new AreaModel($db);
 
-            $conductores         = $usuarioModel->obtenerConductores();
+            $totalRegistros = $conductorModel->contarTotal($busqueda);
+            $totalPaginas   = (int)ceil($totalRegistros / $porPagina);
+            if ($totalPaginas < 1) {
+                $totalPaginas = 1;
+            }
+
+            if ($pagina > $totalPaginas && $totalRegistros > 0) {
+                $pagina = $totalPaginas;
+                $offset = ($pagina - 1) * $porPagina;
+            }
+
+            $conductores         = $conductorModel->obtenerPaginados($porPagina, $offset, $busqueda);
             $usuariosDisponibles = $usuarioModel->obtenerTodos();
             $areas               = $areaModel->obtenerTodas();
         } catch (Throwable $e) {
@@ -40,6 +60,7 @@ class ConductorController
 
         require_once __DIR__ . '/../views/conductores/index.php';
     }
+
 
     public function store(): void
     {

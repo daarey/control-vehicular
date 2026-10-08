@@ -68,6 +68,31 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
             </div>
 
             <div class="card-body dashboard-table-body">
+                <!-- Formulario de Búsqueda Multi-Campo en Servidor (GET) -->
+                <div class="table-search-bar">
+                    <form method="GET" action="index.php" class="table-search-form">
+                        <input type="hidden" name="action" value="movimientos">
+                        <div class="search-input-wrapper">
+                            <svg class="search-input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" name="busqueda" value="<?php echo htmlspecialchars($busqueda ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="Buscar folio, placas, eco, conductor, destino, motivo..." class="table-search-input">
+                            <?php if (!empty($busqueda)): ?>
+                                <a href="index.php?action=movimientos" class="btn-search-clear" title="Limpiar búsqueda">&times;</a>
+                            <?php endif; ?>
+                        </div>
+                        <button type="submit" class="btn-search-submit">
+                            Buscar
+                        </button>
+                        <?php if (!empty($busqueda)): ?>
+                            <a href="index.php?action=movimientos" class="btn-search-reset">
+                                Limpiar filtro
+                            </a>
+                        <?php endif; ?>
+                    </form>
+                    <div class="search-meta-count">
+                        <small class="text-muted">Total: <strong><?php echo (int)($totalRegistros ?? count($movimientos)); ?></strong> movimientos</small>
+                    </div>
+                </div>
+
                 <div class="table-responsive">
                     <table class="table table-hover modern-table dashboard-table">
                         <thead>
@@ -190,18 +215,70 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="10" class="dashboard-empty-state">
-                                        <svg class="dashboard-empty-icon" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                                        <div class="dashboard-empty-title">La bitácora de movimientos está vacía</div>
-                                        <div class="dashboard-empty-desc">No hay registros de salidas o retornos en el sistema.</div>
+                                    <td colspan="10" class="table-empty-row">
+                                        <div class="table-empty-box">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                                            <?php if (!empty($busqueda)): ?>
+                                                <span>No se encontraron movimientos que coincidan con "<strong><?php echo htmlspecialchars($busqueda, ENT_QUOTES, 'UTF-8'); ?></strong>".</span>
+                                                <a href="index.php?action=movimientos" class="btn-search-reset mt-2">Limpiar búsqueda</a>
+                                            <?php else: ?>
+                                                <div class="dashboard-empty-title">La bitácora de movimientos está vacía</div>
+                                                <div class="dashboard-empty-desc">No hay registros de salidas o retornos en el sistema.</div>
+                                            <?php endif; ?>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Botonera de Paginación Condicional (Solo si total de páginas > 1) -->
+                <?php if (($totalPaginas ?? 1) > 1): ?>
+                    <?php
+                        $urlPaginacion = 'index.php?action=movimientos';
+                        if (!empty($busqueda)) {
+                            $urlPaginacion .= '&busqueda=' . urlencode($busqueda);
+                        }
+                    ?>
+                    <div class="server-pagination">
+                        <div class="pagination-meta">
+                            Página <strong><?php echo (int)$pagina; ?></strong> de <strong><?php echo (int)$totalPaginas; ?></strong> (<?php echo (int)$totalRegistros; ?> movimientos en total)
+                        </div>
+                        <ul class="pagination-nav">
+                            <?php if ($pagina > 1): ?>
+                                <li class="pagination-item">
+                                    <a href="<?php echo $urlPaginacion . '&pagina=' . ($pagina - 1); ?>" class="pagination-link" aria-label="Página anterior">&laquo; Anterior</a>
+                                </li>
+                            <?php else: ?>
+                                <li class="pagination-item">
+                                    <span class="pagination-link disabled">&laquo; Anterior</span>
+                                </li>
+                            <?php endif; ?>
+
+                            <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+                                <li class="pagination-item">
+                                    <a href="<?php echo $urlPaginacion . '&pagina=' . $i; ?>" class="pagination-link <?php echo ($i === (int)$pagina) ? 'active' : ''; ?>">
+                                        <?php echo $i; ?>
+                                    </a>
+                                </li>
+                            <?php endfor; ?>
+
+                            <?php if ($pagina < $totalPaginas): ?>
+                                <li class="pagination-item">
+                                    <a href="<?php echo $urlPaginacion . '&pagina=' . ($pagina + 1); ?>" class="pagination-link" aria-label="Página siguiente">Siguiente &raquo;</a>
+                                </li>
+                            <?php else: ?>
+                                <li class="pagination-item">
+                                    <span class="pagination-link disabled">Siguiente &raquo;</span>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
+
 
     </div><!-- /.app-content -->
 </main>

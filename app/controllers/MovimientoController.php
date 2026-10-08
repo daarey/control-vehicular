@@ -24,10 +24,18 @@ class MovimientoController
             RoleMiddleware::ROL_ENCARGADO_VEHICULAR
         ]);
 
+        $busqueda  = trim($_GET['busqueda'] ?? $_GET['q'] ?? '');
+        $pagina    = max(1, (int)($_GET['pagina'] ?? $_GET['page'] ?? 1));
+        $porPagina = 10;
+        $offset    = ($pagina - 1) * $porPagina;
+        $actionActual = ($_GET['action'] ?? 'caseta') === 'movimientos' ? 'movimientos' : 'caseta';
+
         $solicitudesAutorizadas = [];
         $vehiculosEnRuta        = [];
         $movimientos            = [];
         $totalVehiculosDisp     = 0;
+        $totalRegistros         = 0;
+        $totalPaginas           = 1;
 
         try {
             $db            = Database::getConnection();
@@ -36,18 +44,36 @@ class MovimientoController
 
             $solicitudesAutorizadas = $modelo->obtenerSolicitudesListasSalida();
             $vehiculosEnRuta        = $modelo->obtenerVehiculosEnRuta();
-            $movimientos            = $modelo->obtenerRecientes(50);
-            $totalVehiculosDisp     = count($vehiculoModel->obtenerDisponibles());
+
+            $totalRegistros = $modelo->contarTotal($busqueda);
+            $totalPaginas   = (int)ceil($totalRegistros / $porPagina);
+            if ($totalPaginas < 1) {
+                $totalPaginas = 1;
+            }
+
+            if ($pagina > $totalPaginas && $totalRegistros > 0) {
+                $pagina = $totalPaginas;
+                $offset = ($pagina - 1) * $porPagina;
+            }
+
+            $movimientos        = $modelo->obtenerPaginados($porPagina, $offset, $busqueda);
+            $totalVehiculosDisp = count($vehiculoModel->obtenerDisponibles());
         } catch (Throwable $e) {
             error_log('Error en MovimientoController::index(): ' . $e->getMessage());
         }
 
         $tituloPagina = 'Control de Caseta — Salidas y Retornos';
-        $paginaActual = 'movimientos';
+        $paginaActual = 'caseta';
 
-        // dashboard/caseta.php es la pantalla única oficial de operación de caseta
-        require_once __DIR__ . '/../views/dashboard/caseta.php';
+        // Si se invoca como movimientos y existe la vista dedicada, cargarla; de lo contrario cargar el panel operativo caseta
+        if ($actionActual === 'movimientos' && file_exists(__DIR__ . '/../views/movimientos/index.php')) {
+            $paginaActual = 'movimientos';
+            require_once __DIR__ . '/../views/movimientos/index.php';
+        } else {
+            require_once __DIR__ . '/../views/dashboard/caseta.php';
+        }
     }
+
 
 
     /**

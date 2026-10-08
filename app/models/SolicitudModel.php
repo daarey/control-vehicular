@@ -43,6 +43,134 @@ class SolicitudModel
     }
 
     /**
+     * Cuenta el total de solicitudes aplicando filtros de búsqueda multi-campo y estado.
+     */
+    public function contarTotal(?string $busqueda = null, ?string $estado = null, ?int $idArea = null): int
+    {
+        $sql = "SELECT COUNT(*) as total
+                FROM solicitudes s
+                LEFT JOIN usuarios u ON s.id_usuario_solicitante = u.id_usuario
+                LEFT JOIN areas a ON u.id_area = a.id_area
+                LEFT JOIN motivos m ON s.id_motivo = m.id_motivo
+                LEFT JOIN vehiculos v ON s.vehiculo_deseado = v.id_vehiculo
+                WHERE 1=1";
+        $params = [];
+
+        if (!empty($estado)) {
+            $sql .= " AND s.estado_solicitud = :estado";
+            $params[':estado'] = $estado;
+        }
+
+        if ($idArea !== null) {
+            $sql .= " AND u.id_area = :id_area";
+            $params[':id_area'] = $idArea;
+        }
+
+        if (!empty($busqueda)) {
+            $sql .= " AND (
+                s.id_solicitud LIKE :b1
+                OR u.nombre_completo LIKE :b2
+                OR u.correo LIKE :b3
+                OR s.destino LIKE :b4
+                OR m.descripcion LIKE :b5
+                OR v.placas LIKE :b6
+                OR v.numero_economico LIKE :b7
+                OR v.marca LIKE :b8
+                OR v.modelo LIKE :b9
+                OR a.nombre_area LIKE :b10
+            )";
+            $termino = '%' . trim($busqueda) . '%';
+            for ($i = 1; $i <= 10; $i++) {
+                $params[":b{$i}"] = $termino;
+            }
+        }
+
+        $stmt = $this->db->prepare($sql);
+        foreach ($params as $k => $v) {
+            if ($k === ':id_area') {
+                $stmt->bindValue($k, (int)$v, PDO::PARAM_INT);
+            } else {
+                $stmt->bindValue($k, $v, PDO::PARAM_STR);
+            }
+        }
+        $stmt->execute();
+        $res = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)($res['total'] ?? 0);
+    }
+
+    /**
+     * Obtiene solicitudes paginadas con búsqueda multi-campo y ordenamiento desc por folio.
+     */
+    public function obtenerPaginadas(int $limite, int $offset, ?string $busqueda = null, ?string $estado = null, ?int $idArea = null): array
+    {
+        $sql = "SELECT s.*, 
+                       u.nombre_completo as solicitante_nombre, 
+                       u.correo as solicitante_correo,
+                       u.numero_licencia,
+                       u.vigencia_licencia,
+                       a.nombre_area,
+                       m.descripcion as motivo_descripcion,
+                       v.placas as vehiculo_placas,
+                       v.marca as vehiculo_marca,
+                       v.modelo as vehiculo_modelo,
+                       v.numero_economico as vehiculo_eco,
+                       j.nombre_completo as jefe_nombre
+                FROM solicitudes s
+                LEFT JOIN usuarios u ON s.id_usuario_solicitante = u.id_usuario
+                LEFT JOIN areas a ON u.id_area = a.id_area
+                LEFT JOIN motivos m ON s.id_motivo = m.id_motivo
+                LEFT JOIN vehiculos v ON s.vehiculo_deseado = v.id_vehiculo
+                LEFT JOIN usuarios j ON s.id_jefe_autoriza = j.id_usuario
+                WHERE 1=1";
+        $params = [];
+
+        if (!empty($estado)) {
+            $sql .= " AND s.estado_solicitud = :estado";
+            $params[':estado'] = $estado;
+        }
+
+        if ($idArea !== null) {
+            $sql .= " AND u.id_area = :id_area";
+            $params[':id_area'] = $idArea;
+        }
+
+        if (!empty($busqueda)) {
+            $sql .= " AND (
+                s.id_solicitud LIKE :b1
+                OR u.nombre_completo LIKE :b2
+                OR u.correo LIKE :b3
+                OR s.destino LIKE :b4
+                OR m.descripcion LIKE :b5
+                OR v.placas LIKE :b6
+                OR v.numero_economico LIKE :b7
+                OR v.marca LIKE :b8
+                OR v.modelo LIKE :b9
+                OR a.nombre_area LIKE :b10
+            )";
+            $termino = '%' . trim($busqueda) . '%';
+            for ($i = 1; $i <= 10; $i++) {
+                $params[":b{$i}"] = $termino;
+            }
+        }
+
+        $sql .= " ORDER BY s.id_solicitud DESC LIMIT :limite OFFSET :offset";
+
+        $stmt = $this->db->prepare($sql);
+        foreach ($params as $k => $v) {
+            if ($k === ':id_area') {
+                $stmt->bindValue($k, (int)$v, PDO::PARAM_INT);
+            } else {
+                $stmt->bindValue($k, $v, PDO::PARAM_STR);
+            }
+        }
+        $stmt->bindValue(':limite', (int)$limite, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+
+    /**
      * Obtiene solicitudes en estado 'Pendiente' para evaluación administrativa.
      */
     public function obtenerPendientes(?int $idArea = null): array

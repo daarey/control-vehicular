@@ -20,16 +20,57 @@ class SolicitudController
     {
         AuthMiddleware::verificarSesion();
 
-        // En Fase 2 la vista de solicitudes se consolida:
-        // Solicitante gestiona en su Dashboard; Administración en Evaluar Solicitudes.
         if (RoleMiddleware::esSolicitante()) {
             header('Location: index.php?action=dashboard');
             exit();
         }
 
-        header('Location: index.php?action=solicitudes_evaluar');
-        exit();
+        $busqueda  = trim($_GET['busqueda'] ?? $_GET['q'] ?? '');
+        $pagina    = max(1, (int)($_GET['pagina'] ?? $_GET['page'] ?? 1));
+        $porPagina = 10;
+        $offset    = ($pagina - 1) * $porPagina;
+
+        $solicitudes    = [];
+        $motivos        = [];
+        $vehiculos      = [];
+        $totalRegistros = 0;
+        $totalPaginas   = 1;
+
+        try {
+            $db             = Database::getConnection();
+            $solicitudModel = new SolicitudModel($db);
+            $motivoModel    = new MotivoModel($db);
+            $vehiculoModel  = new VehiculoModel($db);
+
+            $idRol  = (int)AuthMiddleware::idRol();
+            $idArea = (int)AuthMiddleware::idArea();
+            $filtroArea = ($idRol === RoleMiddleware::ROL_JEFE_AREA) ? $idArea : null;
+
+            $totalRegistros = $solicitudModel->contarTotal($busqueda, null, $filtroArea);
+            $totalPaginas   = (int)ceil($totalRegistros / $porPagina);
+            if ($totalPaginas < 1) {
+                $totalPaginas = 1;
+            }
+
+            if ($pagina > $totalPaginas && $totalRegistros > 0) {
+                $pagina = $totalPaginas;
+                $offset = ($pagina - 1) * $porPagina;
+            }
+
+            $solicitudes = $solicitudModel->obtenerPaginadas($porPagina, $offset, $busqueda, null, $filtroArea);
+            $motivos     = $motivoModel->obtenerTodos();
+            $vehiculos   = $vehiculoModel->obtenerDisponibles();
+        } catch (Throwable $e) {
+            error_log('Error en SolicitudController::index(): ' . $e->getMessage());
+        }
+
+        $puedeAutorizar = RoleMiddleware::esAdmin() || RoleMiddleware::esJefeArea();
+        $tituloPagina   = 'Gestión de Solicitudes Vehiculares';
+        $paginaActual   = 'solicitudes';
+
+        require_once __DIR__ . '/../views/solicitudes/index.php';
     }
+
 
     /**
      * Bandeja de evaluación administrativa para aprobación/asignación,

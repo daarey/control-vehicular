@@ -42,6 +42,117 @@ class MovimientoModel
         return $stmt->fetchAll();
     }
 
+    /**
+     * Cuenta el total de movimientos de caseta aplicando filtros de búsqueda multi-campo.
+     */
+    public function contarTotal(?string $busqueda = null, ?string $estado = null): int
+    {
+        $sql = "SELECT COUNT(*) as total
+                FROM movimientos m
+                LEFT JOIN vehiculos   v   ON m.id_vehiculo            = v.id_vehiculo
+                LEFT JOIN solicitudes s   ON m.id_solicitud           = s.id_solicitud
+                LEFT JOIN usuarios    uc  ON m.id_usuario_conductor   = uc.id_usuario
+                LEFT JOIN usuarios    us  ON s.id_usuario_solicitante = us.id_usuario
+                LEFT JOIN motivos     mtv ON m.id_motivo              = mtv.id_motivo
+                LEFT JOIN usuarios    u   ON m.id_usuario_caseta      = u.id_usuario
+                WHERE 1=1";
+        $params = [];
+
+        if (!empty($estado)) {
+            $sql .= " AND m.estado_movimiento = :estado";
+            $params[':estado'] = $estado;
+        }
+
+        if (!empty($busqueda)) {
+            $sql .= " AND (
+                m.id_movimiento LIKE :b1
+                OR v.placas LIKE :b2
+                OR v.numero_economico LIKE :b3
+                OR v.marca LIKE :b4
+                OR v.modelo LIKE :b5
+                OR uc.nombre_completo LIKE :b6
+                OR us.nombre_completo LIKE :b7
+                OR uc.numero_licencia LIKE :b8
+                OR us.numero_licencia LIKE :b9
+                OR m.destino LIKE :b10
+                OR mtv.descripcion LIKE :b11
+                OR u.nombre_completo LIKE :b12
+            )";
+            $termino = '%' . trim($busqueda) . '%';
+            for ($i = 1; $i <= 12; $i++) {
+                $params[":b{$i}"] = $termino;
+            }
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        $res = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)($res['total'] ?? 0);
+    }
+
+    /**
+     * Obtiene registros paginados de movimientos con búsqueda multi-campo y ordenamiento desc.
+     */
+    public function obtenerPaginados(int $limite, int $offset, ?string $busqueda = null, ?string $estado = null): array
+    {
+        $sql = "SELECT m.*,
+                       v.placas             AS vehiculo_placas,
+                       v.numero_economico   AS vehiculo_economico,
+                       v.marca              AS vehiculo_marca,
+                       v.modelo             AS vehiculo_modelo,
+                       COALESCE(uc.nombre_completo, us.nombre_completo, 'Chofer no asignado') AS conductor_nombre,
+                       COALESCE(uc.numero_licencia, us.numero_licencia) AS conductor_licencia,
+                       mtv.descripcion      AS motivo_descripcion,
+                       u.nombre_completo    AS caseta_usuario
+                FROM movimientos m
+                LEFT JOIN vehiculos   v   ON m.id_vehiculo            = v.id_vehiculo
+                LEFT JOIN solicitudes s   ON m.id_solicitud           = s.id_solicitud
+                LEFT JOIN usuarios    uc  ON m.id_usuario_conductor   = uc.id_usuario
+                LEFT JOIN usuarios    us  ON s.id_usuario_solicitante = us.id_usuario
+                LEFT JOIN motivos     mtv ON m.id_motivo              = mtv.id_motivo
+                LEFT JOIN usuarios    u   ON m.id_usuario_caseta      = u.id_usuario
+                WHERE 1=1";
+        $params = [];
+
+        if (!empty($estado)) {
+            $sql .= " AND m.estado_movimiento = :estado";
+            $params[':estado'] = $estado;
+        }
+
+        if (!empty($busqueda)) {
+            $sql .= " AND (
+                m.id_movimiento LIKE :b1
+                OR v.placas LIKE :b2
+                OR v.numero_economico LIKE :b3
+                OR v.marca LIKE :b4
+                OR v.modelo LIKE :b5
+                OR uc.nombre_completo LIKE :b6
+                OR us.nombre_completo LIKE :b7
+                OR uc.numero_licencia LIKE :b8
+                OR us.numero_licencia LIKE :b9
+                OR m.destino LIKE :b10
+                OR mtv.descripcion LIKE :b11
+                OR u.nombre_completo LIKE :b12
+            )";
+            $termino = '%' . trim($busqueda) . '%';
+            for ($i = 1; $i <= 12; $i++) {
+                $params[":b{$i}"] = $termino;
+            }
+        }
+
+        $sql .= " ORDER BY m.id_movimiento DESC LIMIT :limite OFFSET :offset";
+
+        $stmt = $this->db->prepare($sql);
+        foreach ($params as $param => $val) {
+            $stmt->bindValue($param, $val, PDO::PARAM_STR);
+        }
+        $stmt->bindValue(':limite', (int)$limite, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+
     public function obtenerTodosParaReporte(): array
     {
         $sql = "SELECT m.*,

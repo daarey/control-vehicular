@@ -24,7 +24,33 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
                 </button>
             </div>
             <div class="card-body">
+                <!-- Formulario de Búsqueda Multi-Campo en Servidor (GET) -->
+                <div class="table-search-bar">
+                    <form method="GET" action="index.php" class="table-search-form">
+                        <input type="hidden" name="action" value="usuarios">
+                        <div class="search-input-wrapper">
+                            <svg class="search-input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" name="busqueda" value="<?php echo htmlspecialchars($busqueda ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="Buscar nombre, correo, rol, área, licencia..." class="table-search-input">
+                            <?php if (!empty($busqueda)): ?>
+                                <a href="index.php?action=usuarios" class="btn-search-clear" title="Limpiar búsqueda">&times;</a>
+                            <?php endif; ?>
+                        </div>
+                        <button type="submit" class="btn-search-submit">
+                            Buscar
+                        </button>
+                        <?php if (!empty($busqueda)): ?>
+                            <a href="index.php?action=usuarios" class="btn-search-reset">
+                                Limpiar filtro
+                            </a>
+                        <?php endif; ?>
+                    </form>
+                    <div class="search-meta-count">
+                        <small class="text-muted">Total: <strong><?php echo (int)($totalRegistros ?? count($usuarios)); ?></strong> usuarios</small>
+                    </div>
+                </div>
+
                 <div class="table-responsive">
+
                     <table class="table table-hover modern-table">
                         <thead>
                             <tr>
@@ -98,14 +124,54 @@ require_once __DIR__ . '/../../../includes/sidebar.php';
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="5" class="table-empty-state">
-                                        No se encontraron usuarios registrados activos.
+                                    <td colspan="5" class="table-empty-row">
+                                        <div class="table-empty-box">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                                            <p class="mb-1"><strong>No se encontraron usuarios coincidentes</strong></p>
+                                            <small class="text-muted">Intente con otro término o <a href="index.php?action=usuarios">limpie el filtro de búsqueda</a>.</small>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Botonera de Paginación Condicional -->
+                <?php if (($totalPaginas ?? 1) > 1): ?>
+                    <div class="server-pagination">
+                        <div class="pagination-meta">
+                            Página <strong><?php echo (int)$pagina; ?></strong> de <strong><?php echo (int)$totalPaginas; ?></strong>
+                            (Total: <strong><?php echo (int)$totalRegistros; ?></strong> registros)
+                        </div>
+                        <nav aria-label="Navegación de usuarios" class="pagination-nav">
+                            <!-- Anterior -->
+                            <?php if ($pagina > 1): ?>
+                                <a href="index.php?action=usuarios&pagina=<?php echo ($pagina - 1); ?><?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="pagination-link pagination-prev">&laquo; Anterior</a>
+                            <?php else: ?>
+                                <span class="pagination-link pagination-disabled">&laquo; Anterior</span>
+                            <?php endif; ?>
+
+                            <!-- Páginas numéricas -->
+                            <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+                                <?php if ($i == $pagina): ?>
+                                    <span class="pagination-link pagination-active"><?php echo $i; ?></span>
+                                <?php elseif ($i == 1 || $i == $totalPaginas || ($i >= $pagina - 2 && $i <= $pagina + 2)): ?>
+                                    <a href="index.php?action=usuarios&pagina=<?php echo $i; ?><?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="pagination-link"><?php echo $i; ?></a>
+                                <?php elseif ($i == $pagina - 3 || $i == $pagina + 3): ?>
+                                    <span class="pagination-ellipsis">&hellip;</span>
+                                <?php endif; ?>
+                            <?php endfor; ?>
+
+                            <!-- Siguiente -->
+                            <?php if ($pagina < $totalPaginas): ?>
+                                <a href="index.php?action=usuarios&pagina=<?php echo ($pagina + 1); ?><?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="pagination-link pagination-next">Siguiente &raquo;</a>
+                            <?php else: ?>
+                                <span class="pagination-link pagination-disabled">Siguiente &raquo;</span>
+                            <?php endif; ?>
+                        </nav>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

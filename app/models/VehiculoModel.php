@@ -40,6 +40,94 @@ class VehiculoModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Cuenta el total de vehículos activos aplicando filtros de búsqueda multi-campo y estado.
+     */
+    public function contarTotal(?string $busqueda = null, ?string $estado = null): int
+    {
+        $sql = "SELECT COUNT(*) as total
+                FROM vehiculos v
+                LEFT JOIN usuarios u ON v.id_resguardante = u.id_usuario
+                WHERE v.estatus = 1";
+        $params = [];
+
+        if (!empty($estado)) {
+            $sql .= " AND v.estado_operativo = :estado";
+            $params[':estado'] = $estado;
+        }
+
+        if (!empty($busqueda)) {
+            $sql .= " AND (
+                v.placas LIKE :b1
+                OR v.modelo LIKE :b2
+                OR v.marca LIKE :b3
+                OR v.numero_economico LIKE :b4
+                OR v.numero_patrimonial LIKE :b5
+                OR v.numero_serie LIKE :b6
+                OR u.nombre_completo LIKE :b7
+            )";
+            $termino = '%' . trim($busqueda) . '%';
+            for ($i = 1; $i <= 7; $i++) {
+                $params[":b{$i}"] = $termino;
+            }
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        $res = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)($res['total'] ?? 0);
+    }
+
+    /**
+     * Obtiene registros paginados con ordenamiento y filtros de búsqueda multi-campo.
+     */
+    public function obtenerPaginados(int $limite, int $offset, ?string $busqueda = null, ?string $estado = null, string $orden = 'id_vehiculo', string $dir = 'DESC'): array
+    {
+        $ordenesPermitidos = ['id_vehiculo', 'numero_economico', 'modelo_anio', 'km_actual', 'marca', 'placas'];
+        $orden = in_array($orden, $ordenesPermitidos, true) ? $orden : 'id_vehiculo';
+        $dir = (strtoupper($dir) === 'ASC') ? 'ASC' : 'DESC';
+
+        $sql = "SELECT v.*, u.nombre_completo AS resguardante_nombre
+                FROM vehiculos v
+                LEFT JOIN usuarios u ON v.id_resguardante = u.id_usuario
+                WHERE v.estatus = 1";
+        $params = [];
+
+        if (!empty($estado)) {
+            $sql .= " AND v.estado_operativo = :estado";
+            $params[':estado'] = $estado;
+        }
+
+        if (!empty($busqueda)) {
+            $sql .= " AND (
+                v.placas LIKE :b1
+                OR v.modelo LIKE :b2
+                OR v.marca LIKE :b3
+                OR v.numero_economico LIKE :b4
+                OR v.numero_patrimonial LIKE :b5
+                OR v.numero_serie LIKE :b6
+                OR u.nombre_completo LIKE :b7
+            )";
+            $termino = '%' . trim($busqueda) . '%';
+            for ($i = 1; $i <= 7; $i++) {
+                $params[":b{$i}"] = $termino;
+            }
+        }
+
+        $sql .= " ORDER BY v.$orden $dir LIMIT :limite OFFSET :offset";
+
+        $stmt = $this->db->prepare($sql);
+        foreach ($params as $param => $val) {
+            $stmt->bindValue($param, $val, PDO::PARAM_STR);
+        }
+        $stmt->bindValue(':limite', (int)$limite, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+
+
     // Insertar nuevo vehículo con captura de PDOException
     public function registrar($datos)
     {

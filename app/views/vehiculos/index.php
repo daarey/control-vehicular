@@ -17,12 +17,12 @@ $puedeEditarEliminar = RoleMiddleware::esAdmin();
         <?php require_once __DIR__ . '/../layouts/alertas.php'; ?>
 
         <!-- Botones de Filtro por Estado -->
-        <div class="mb-3 d-flex justify-content-between">
+        <div class="mb-3 d-flex justify-content-between flex-wrap gap-2">
             <div class="filter-status-group">
-                <a href="index.php?action=vehiculos" class="btn-filter-status <?php echo empty($estado) ? 'active' : ''; ?>">Todos</a>
-                <a href="index.php?action=vehiculos&estado=Disponible" class="btn-filter-status <?php echo ($estado ?? '') === 'Disponible' ? 'active' : ''; ?>">Disponibles</a>
-                <a href="index.php?action=vehiculos&estado=En ruta" class="btn-filter-status <?php echo ($estado ?? '') === 'En ruta' ? 'active' : ''; ?>">En Ruta</a>
-                <a href="index.php?action=vehiculos&estado=En mantenimiento" class="btn-filter-status <?php echo ($estado ?? '') === 'En mantenimiento' ? 'active' : ''; ?>">En Mantenimiento</a>
+                <a href="index.php?action=vehiculos<?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="btn-filter-status <?php echo empty($estado) ? 'active' : ''; ?>">Todos</a>
+                <a href="index.php?action=vehiculos&estado=Disponible<?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="btn-filter-status <?php echo ($estado ?? '') === 'Disponible' ? 'active' : ''; ?>">Disponibles</a>
+                <a href="index.php?action=vehiculos&estado=En ruta<?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="btn-filter-status <?php echo ($estado ?? '') === 'En ruta' ? 'active' : ''; ?>">En Ruta</a>
+                <a href="index.php?action=vehiculos&estado=En mantenimiento<?php echo !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : ''; ?>" class="btn-filter-status <?php echo ($estado ?? '') === 'En mantenimiento' ? 'active' : ''; ?>">En Mantenimiento</a>
             </div>
             
             <?php if ($puedeEditarEliminar): ?>
@@ -35,20 +35,53 @@ $puedeEditarEliminar = RoleMiddleware::esAdmin();
 
         <div class="content-card">
             <div class="card-body">
+                <!-- Formulario de Búsqueda Multi-Campo en Servidor (GET) -->
+                <div class="table-search-bar">
+                    <form method="GET" action="index.php" class="table-search-form">
+                        <input type="hidden" name="action" value="vehiculos">
+                        <?php if (!empty($estado)): ?>
+                            <input type="hidden" name="estado" value="<?php echo htmlspecialchars($estado, ENT_QUOTES, 'UTF-8'); ?>">
+                        <?php endif; ?>
+                        <?php if (!empty($orden) && $orden !== 'id_vehiculo'): ?>
+                            <input type="hidden" name="orden" value="<?php echo htmlspecialchars($orden, ENT_QUOTES, 'UTF-8'); ?>">
+                            <input type="hidden" name="dir" value="<?php echo htmlspecialchars($dir ?? 'DESC', ENT_QUOTES, 'UTF-8'); ?>">
+                        <?php endif; ?>
+                        <div class="search-input-wrapper">
+                            <svg class="search-input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" name="busqueda" value="<?php echo htmlspecialchars($busqueda ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="Buscar placas, modelo, marca, no. económico, serie..." class="table-search-input">
+                            <?php if (!empty($busqueda)): ?>
+                                <a href="index.php?action=vehiculos<?php echo !empty($estado) ? '&estado=' . urlencode($estado) : ''; ?>" class="btn-search-clear" title="Limpiar búsqueda">&times;</a>
+                            <?php endif; ?>
+                        </div>
+                        <button type="submit" class="btn-search-submit">
+                            Buscar
+                        </button>
+                        <?php if (!empty($busqueda)): ?>
+                            <a href="index.php?action=vehiculos<?php echo !empty($estado) ? '&estado=' . urlencode($estado) : ''; ?>" class="btn-search-reset">
+                                Limpiar filtro
+                            </a>
+                        <?php endif; ?>
+                    </form>
+                    <div class="search-meta-count">
+                        <small class="text-muted">Total: <strong><?php echo (int)($totalRegistros ?? count($vehiculos)); ?></strong> unidades</small>
+                    </div>
+                </div>
+
                 <div class="table-responsive">
                     <!-- Cabeceras de Tabla Ordenables -->
                     <?php 
                         $nuevoDirParam = htmlspecialchars($nuevoDir ?? 'ASC', ENT_QUOTES, 'UTF-8');
                         $estadoParam = htmlspecialchars($estado ?? '', ENT_QUOTES, 'UTF-8');
+                        $busquedaParam = !empty($busqueda) ? '&busqueda=' . urlencode($busqueda) : '';
                     ?>
                     <table class="table table-hover modern-table">
                         <thead>
                             <tr>
-                                <th><a href="index.php?action=vehiculos&orden=numero_economico&dir=<?= $nuevoDirParam ?>&estado=<?= $estadoParam ?>" class="text-dark text-decoration-none">No. Ecón. ↕</a></th>
+                                <th><a href="index.php?action=vehiculos&orden=numero_economico&dir=<?= $nuevoDirParam ?>&estado=<?= $estadoParam ?><?= $busquedaParam ?>" class="text-dark text-decoration-none">No. Ecón. ↕</a></th>
                                 <th>Placas</th>
-                                <th><a href="index.php?action=vehiculos&orden=marca&dir=<?= $nuevoDirParam ?>&estado=<?= $estadoParam ?>" class="text-dark text-decoration-none">Marca / Modelo ↕</a></th>
-                                <th><a href="index.php?action=vehiculos&orden=modelo_anio&dir=<?= $nuevoDirParam ?>&estado=<?= $estadoParam ?>" class="text-dark text-decoration-none">Año ↕</a></th>
-                                <th><a href="index.php?action=vehiculos&orden=km_actual&dir=<?= $nuevoDirParam ?>&estado=<?= $estadoParam ?>" class="text-dark text-decoration-none">Km Actual ↕</a></th>
+                                <th><a href="index.php?action=vehiculos&orden=marca&dir=<?= $nuevoDirParam ?>&estado=<?= $estadoParam ?><?= $busquedaParam ?>" class="text-dark text-decoration-none">Marca / Modelo ↕</a></th>
+                                <th><a href="index.php?action=vehiculos&orden=modelo_anio&dir=<?= $nuevoDirParam ?>&estado=<?= $estadoParam ?><?= $busquedaParam ?>" class="text-dark text-decoration-none">Año ↕</a></th>
+                                <th><a href="index.php?action=vehiculos&orden=km_actual&dir=<?= $nuevoDirParam ?>&estado=<?= $estadoParam ?><?= $busquedaParam ?>" class="text-dark text-decoration-none">Km Actual ↕</a></th>
                                 <th>Resguardante</th>
                                 <th>Estado Operativo</th>
                                 <?php if ($puedeEditarEliminar): ?>
@@ -56,6 +89,7 @@ $puedeEditarEliminar = RoleMiddleware::esAdmin();
                                 <?php endif; ?>
                             </tr>
                         </thead>
+
                         <tbody>
                             <?php if (!empty($vehiculos)): ?>
                                 <?php foreach ($vehiculos as $v): ?>
@@ -115,16 +149,75 @@ $puedeEditarEliminar = RoleMiddleware::esAdmin();
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="<?php echo $puedeEditarEliminar ? '8' : '7'; ?>" class="table-empty-state">
-                                        No hay vehículos registrados en la base de datos.
+                                    <td colspan="<?php echo $puedeEditarEliminar ? '8' : '7'; ?>" class="table-empty-row">
+                                        <div class="table-empty-box">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                                            <?php if (!empty($busqueda)): ?>
+                                                <span>No se encontraron vehículos que coincidan con "<strong><?php echo htmlspecialchars($busqueda, ENT_QUOTES, 'UTF-8'); ?></strong>".</span>
+                                                <a href="index.php?action=vehiculos<?php echo !empty($estado) ? '&estado=' . urlencode($estado) : ''; ?>" class="btn-search-reset mt-2">Limpiar búsqueda</a>
+                                            <?php else: ?>
+                                                <span>No hay vehículos registrados en la base de datos.</span>
+                                            <?php endif; ?>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Botonera de Paginación Condicional (Solo si total de páginas > 1) -->
+                <?php if (($totalPaginas ?? 1) > 1): ?>
+                    <?php
+                        $urlPaginacion = 'index.php?action=vehiculos';
+                        if (!empty($busqueda)) {
+                            $urlPaginacion .= '&busqueda=' . urlencode($busqueda);
+                        }
+                        if (!empty($estado)) {
+                            $urlPaginacion .= '&estado=' . urlencode($estado);
+                        }
+                        if (!empty($orden) && $orden !== 'id_vehiculo') {
+                            $urlPaginacion .= '&orden=' . urlencode($orden) . '&dir=' . urlencode($dir ?? 'DESC');
+                        }
+                    ?>
+                    <div class="server-pagination">
+                        <div class="pagination-meta">
+                            Página <strong><?php echo (int)$pagina; ?></strong> de <strong><?php echo (int)$totalPaginas; ?></strong> (<?php echo (int)$totalRegistros; ?> registros en total)
+                        </div>
+                        <ul class="pagination-nav">
+                            <?php if ($pagina > 1): ?>
+                                <li class="pagination-item">
+                                    <a href="<?php echo $urlPaginacion . '&pagina=' . ($pagina - 1); ?>" class="pagination-link" aria-label="Página anterior">&laquo; Anterior</a>
+                                </li>
+                            <?php else: ?>
+                                <li class="pagination-item">
+                                    <span class="pagination-link disabled">&laquo; Anterior</span>
+                                </li>
+                            <?php endif; ?>
+
+                            <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+                                <li class="pagination-item">
+                                    <a href="<?php echo $urlPaginacion . '&pagina=' . $i; ?>" class="pagination-link <?php echo ($i === (int)$pagina) ? 'active' : ''; ?>">
+                                        <?php echo $i; ?>
+                                    </a>
+                                </li>
+                            <?php endfor; ?>
+
+                            <?php if ($pagina < $totalPaginas): ?>
+                                <li class="pagination-item">
+                                    <a href="<?php echo $urlPaginacion . '&pagina=' . ($pagina + 1); ?>" class="pagination-link" aria-label="Página siguiente">Siguiente &raquo;</a>
+                                </li>
+                            <?php else: ?>
+                                <li class="pagination-item">
+                                    <span class="pagination-link disabled">Siguiente &raquo;</span>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
+
     </div>
 </main>
 
